@@ -1,8 +1,6 @@
-package com.zht.homework1;
-
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -19,7 +17,8 @@ public class MyClassLoader extends ClassLoader {
         BufferedInputStream bis = null;
         byte[] allBytes = null;
         try {
-            bis = new BufferedInputStream(new FileInputStream("D:/temp_dir/Hello.xlass"));
+            InputStream is = MyClassLoader.class.getClassLoader().getResourceAsStream("Hello.xlass");
+            bis = new BufferedInputStream(is);
             byte[] buf = new byte[1024];
             int length = bis.read(buf);
             allBytes = Arrays.copyOf(buf, length);
