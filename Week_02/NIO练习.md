@@ -240,3 +240,84 @@ RPS在1580.6的水平，平均响应时间22.4ms。处理请求的能力相较�
 
     3721 interned Strings occupying 303384 bytes.
 年轻代使用量为44.7M左右，老年代的使用量为1.9M左右，明显优于第二种模式的处理。
+
+4、使用Netty方式处理HTTP请求
+----------------------------------------
+启动8804端口进行压测：
+
+    D:\>sb -u http://localhost:8804/test -c 40 -N 30
+    Starting at 2021/1/22 23:01:48
+    [Press C to stop the test]
+    173604  (RPS: 5172.9)
+    ---------------Finished!----------------
+    Finished at 2021/1/22 23:02:22 (took 00:00:33.7455485)
+    Status 200:    173609
+
+    RPS: 5565.7 (requests/second)
+    Max: 123ms
+    Min: 0ms
+    Avg: 0.3ms
+
+      50%   below 0ms
+      60%   below 0ms
+      70%   below 0ms
+      80%   below 0ms
+      90%   below 0ms
+      95%   below 2ms
+      98%   below 6ms
+      99%   below 8ms
+    99.9%   below 21ms
+
+从控制台可以看出，30秒内，使用40并发量对应用进行请求，共发出请求173609个，状态全部为200。
+RPS在5565.7的水平，平均响应时间0.3ms，相比以上几种方式，质的飞跃，有没有。
+再通过jmap命令查看堆内存的使用情况来看，如下图:
+
+    D:\>jmap -heap 14956
+    Attaching to process ID 14956, please wait...
+    Debugger attached successfully.
+    Server compiler detected.
+    JVM version is 25.131-b11
+
+    using thread-local object allocation.
+    Parallel GC with 8 thread(s)
+
+    Heap Configuration:
+       MinHeapFreeRatio         = 0
+       MaxHeapFreeRatio         = 100
+       MaxHeapSize              = 536870912 (512.0MB)
+       NewSize                  = 88604672 (84.5MB)
+       MaxNewSize               = 178782208 (170.5MB)
+       OldSize                  = 177733632 (169.5MB)
+       NewRatio                 = 2
+       SurvivorRatio            = 8
+       MetaspaceSize            = 21807104 (20.796875MB)
+       CompressedClassSpaceSize = 1073741824 (1024.0MB)
+       MaxMetaspaceSize         = 17592186044415 MB
+       G1HeapRegionSize         = 0 (0.0MB)
+
+    Heap Usage:
+    PS Young Generation
+    Eden Space:
+       capacity = 65011712 (62.0MB)
+       used     = 31951936 (30.47174072265625MB)
+       free     = 33059776 (31.52825927734375MB)
+       49.147968907510084% used
+    From Space:
+       capacity = 6291456 (6.0MB)
+       used     = 5988416 (5.71099853515625MB)
+       free     = 303040 (0.28900146484375MB)
+       95.18330891927083% used
+    To Space:
+       capacity = 8912896 (8.5MB)
+       used     = 0 (0.0MB)
+       free     = 8912896 (8.5MB)
+       0.0% used
+    PS Old Generation
+       capacity = 177733632 (169.5MB)
+       used     = 60496 (0.0576934814453125MB)
+       free     = 177673136 (169.4423065185547MB)
+       0.03403745218012537% used
+
+    6258 interned Strings occupying 520560 bytes.
+
+可以看出，吞吐量飞升的同时，堆内存并没有更多的提升。
