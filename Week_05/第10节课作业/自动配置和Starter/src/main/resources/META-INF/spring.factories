@@ -1,0 +1,2 @@
+# PropertySource Loaders
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.zht.conf.MyAutoConfig

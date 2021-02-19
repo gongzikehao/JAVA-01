@@ -1,0 +1,6 @@
+com\zht\beans\Klass.class
+com\zht\beans\School.class
+com\zht\beans\Student.class
+com\zht\conf\MyAutoConfig.class
+com\zht\controller\TestController.class
+com\zht\App.class
