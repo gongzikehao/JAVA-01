@@ -1,0 +1,38 @@
+server:
+  port: 8888
+
+sharding:
+  jdbc:
+    datasource:
+      names: first,second,third
+      first:
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/business?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        username: root
+        password: 123456
+      second:
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3316/business?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+        username: root
+      third:
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3326/business?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+        username: root
+    config:
+      masterslave:
+        load-balance-algorithm-type: round_robin
+        name: ms
+        master-data-source-name: first
+        slave-data-source-names: second,third
+      props:
+        sql:
+          show: true
+spring:
+  main:
+    allow-bean-definition-overriding: true
