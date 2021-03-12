@@ -1,0 +1,40 @@
+server:
+  port: 8888
+
+#mybatis:
+#  # 开启mybatis sql打印
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+sharding:
+  jdbc:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/business_0?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        username: root
+        password: haitaotao123!
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/business_1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        username: root
+        password: haitaotao123!
+    config:
+      sharding:
+        props:
+          sql.show: true
+        tables:
+          t_order: #这里要对 t_order 表进行既分库又分表
+            key-generator-cloumn-name: id #自动生成主键的列名
+            actual-data-nodes: ds${0..1}.t_order_${0..15} #实际数据库的节点，对应于上面配置的数据源名称
+            database-strategy: #分库策略
+              inline:
+                sharding-column: user_id
+                algorithm-expression: ds${user_id % 2}
+            table-strategy: #分表策略
+              inline:
+                sharding-column: product_id
+                algorithm-expression: t_order_${product_id % 16}

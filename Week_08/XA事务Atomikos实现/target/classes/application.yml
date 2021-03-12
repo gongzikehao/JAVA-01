@@ -1,0 +1,49 @@
+server:
+  port: 8888
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+# 这里要注册所有的数据源
+spring:
+  shardingsphere:
+    props:
+      sql-show: true
+    datasource:
+      names: ds0,ds1
+      # 这是数据源0的配置
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://127.0.0.1:3306/business_0?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: haitaotao123!
+      # 这是数据源1的配置
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://127.0.0.1:3306/business_1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: haitaotao123!
+    sharding:
+      binding-tables: t_order
+      #默认分库策略，分库的列是user_id
+      default-database-strategy:
+        inline:
+          sharding-column: user_id
+          algorithm-expression: ds${user_id % 2}
+      #默认分表策略，分表列是product_id
+      default-table-strategy:
+        inline:
+          sharding-column: product_id
+          algorithm-expression: t_order_${product_id % 16}
+      #分表策略，分表的列是user_id
+      tables:
+        t_order:
+          actual-data-nodes: ds${0..1}.t_order_${0..15}
+          table-strategy:
+            inline:
+              sharding-column: product_id
+              algorithm-expression: t_order_${product_id % 16}
+          key-generator:
+            column: id
+            type: SNOWFLAKE
